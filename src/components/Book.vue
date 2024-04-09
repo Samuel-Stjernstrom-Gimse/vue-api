@@ -11,6 +11,7 @@ const searchUrl = ref<string>('https://gutendex.com/books/?page=1')
 
 watch(page, () => {
     searchUrl.value = `https://gutendex.com/books/?page=${page.value}`
+    books.value = []
     fetchData()
 })
 
@@ -36,6 +37,13 @@ const getCoverImageUrl = (book: BookMetadata): string => {
     return book.formats['image/jpeg'] ?? ''
 }
 
+const getFormattedSubjects = (subjects: string[]): string[] => {
+    return subjects.map((subject) => {
+        const index = subject.indexOf('--')
+        return index !== -1 ? subject.substring(0, index).trim() : subject.trim()
+    })
+}
+
 const handlePageTurn = (dir: 'next' | 'prev'): void => {
     dir === 'next' ? page.value++ : page.value <= 1 ? (page.value = 1) : page.value--
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -43,37 +51,81 @@ const handlePageTurn = (dir: 'next' | 'prev'): void => {
 </script>
 
 <template>
-    <div class="page-turners">
-        <button @click="handlePageTurn('prev')">prev page</button>
-        <button @click="handlePageTurn('next')">next page</button>
-    </div>
-    <section>
-        <div @click="goToBookPage(book.id)" id="book-wrapper" v-for="book in books" :key="book.id">
-            <h1>{{ book.title }}</h1>
-            <div v-for="author in book.authors">
-                <h3>{{ author.name }}</h3>
-            </div>
-            <img :src="getCoverImageUrl(book)" alt="" />
-            <div v-for="subject in book.subjects">
-                <p>{{ subject }}</p>
-            </div>
+    <div>
+        <div class="page-turners">
+            <button @click="handlePageTurn('prev')">prev page</button>
+            <h4>{{ page }}</h4>
+            <button @click="handlePageTurn('next')">next page</button>
         </div>
-    </section>
-    <button @click="handlePageTurn('prev')">prev page</button>
-    <button @click="handlePageTurn('next')">next page</button>
+        <section>
+            <div
+                v-if="books.length > 0"
+                v-for="book in books"
+                :key="book.id"
+                @click="goToBookPage(book.id)"
+                class="book-wrapper"
+            >
+                <h1>{{ book.title }}</h1>
+                <div v-for="author in book.authors" :key="author.name">
+                    <h3>{{ author.name }}</h3>
+                </div>
+                <img :src="getCoverImageUrl(book)" alt="" />
+                <div style="display: flex; flex-wrap: wrap">
+                    <h5 v-for="subject in getFormattedSubjects(book.subjects)" :key="subject">
+                        #<span style="color: #8e92ff">{{ subject }} </span>
+                    </h5>
+                </div>
+            </div>
+            <div v-else v-for="n in 30" :key="n" class="book-wrapper" style="height: 30vw; background-color: #1a1a1a">
+                <h2>Loading...</h2>
+                <img id="load-book" src="../assets/img/book.jpg" alt="" />
+            </div>
+        </section>
+        <div class="page-turners">
+            <button @click="handlePageTurn('prev')">prev page</button>
+            <h4>{{ page }}</h4>
+            <button @click="handlePageTurn('next')">next page</button>
+        </div>
+    </div>
 </template>
 
 <style scoped>
-h1 {
-    font-size: 24px;
-    color: #ffffff;
-}
-#book-wrapper {
-    background-color: #213547;
+img {
+    z-index: 1;
     width: 20vw;
+    height: 30vw;
+    object-fit: cover;
+    position: absolute;
+    border-radius: 4px;
+    transition: 0.4s;
+    box-shadow: 10px 10px 20px rgba(16, 15, 15, 0.78);
+}
+
+.book-wrapper {
+    position: relative;
+    width: 20vw;
+    height: 30vw;
     padding: 2rem;
     margin: 1rem;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    border-radius: 4px;
+    transition: 0.4s;
+}
+img:hover {
+    transition: 0.4s;
+    z-index: 0;
+    opacity: 0.3;
+    box-shadow: 0 0 10px rgb(255, 255, 255);
+}
+
+h1 {
+    font-size: 24px;
+    color: #ffffff;
 }
 
 section {
@@ -82,8 +134,15 @@ section {
 }
 
 .page-turners {
+    margin-bottom: 1rem;
+    margin-top: 1rem;
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 3rem;
+}
+
+#load-book {
+    opacity: 0.1;
 }
 </style>
