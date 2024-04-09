@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { BookMetadata } from '../types/types.ts'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const books = ref<BookMetadata[]>([])
+const page = ref<number>(1)
 
 const fetchData = async () => {
     try {
-        const result = await fetch('https://gutendex.com/books/?page=1')
+        const result = await fetch(`https://gutendex.com/books/?page=${page.value}`)
         const data = await result.json()
         books.value = data.results
     } catch (error) {
@@ -18,15 +21,24 @@ onMounted(() => {
     fetchData()
 })
 
+const goToBookPage = (bookId: number) => {
+    router.push(`/book/bookPage/${bookId}`)
+}
 const getCoverImageUrl = (book: BookMetadata): string => {
     return book.formats['image/jpeg'] ?? ''
+}
+const handlePageTurn = (dir: 'next' | 'prev'): void => {
+    dir === 'next' ? page.value++ : page.value <= 1 ? (page.value = 1) : page.value--
+    fetchData()
 }
 </script>
 
 <template>
+    <button @click="handlePageTurn('prev')">prevpage</button>
+    <button @click="handlePageTurn('next')">nextpage</button>
     <section>
-        <div id="book-wrapper" @click="" v-for="book in books" :key="book.id">
-            <h1>{{ book.title }}</h1>
+        <div id="book-wrapper" v-for="book in books" :key="book.id">
+            <h1 @click="goToBookPage(book.id)">{{ book.title }}</h1>
             <div v-for="author in book.authors">
                 <h3>{{ author.name }}</h3>
             </div>

@@ -1,11 +1,7 @@
-<script lang="ts" setup>
-import HelloWorld from './components/Book.vue'
-</script>
+<script lang="ts" setup></script>
 
 <template>
-    <HelloWorld />
+    <div><router-view></router-view> </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>
