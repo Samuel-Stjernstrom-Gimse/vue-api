@@ -27,14 +27,13 @@ const getCoverImageUrl = (book: BookMetadata): string => {
     <section>
         <div id="book-wrapper" @click="" v-for="book in books" :key="book.id">
             <h1>{{ book.title }}</h1>
-            <div v-for="subject in book.subjects">
-                <span>{{ subject }}</span>
-            </div>
-            <h1>{{ book.id }}</h1>
             <div v-for="author in book.authors">
                 <h3>{{ author.name }}</h3>
             </div>
             <img :src="getCoverImageUrl(book)" alt="" />
+            <div v-for="subject in book.subjects">
+                <p>{{ subject }}</p>
+            </div>
         </div>
     </section>
 </template>
