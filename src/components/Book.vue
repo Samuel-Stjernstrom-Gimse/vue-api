@@ -24,18 +24,23 @@ onMounted(() => {
 const goToBookPage = (bookId: number) => {
     router.push(`/book/bookPage/${bookId}`)
 }
+
 const getCoverImageUrl = (book: BookMetadata): string => {
     return book.formats['image/jpeg'] ?? ''
 }
+
 const handlePageTurn = (dir: 'next' | 'prev'): void => {
     dir === 'next' ? page.value++ : page.value <= 1 ? (page.value = 1) : page.value--
+    window.scrollTo({ top: 0, behavior: 'smooth' })
     fetchData()
 }
 </script>
 
 <template>
-    <button @click="handlePageTurn('prev')">prevpage</button>
-    <button @click="handlePageTurn('next')">nextpage</button>
+    <div class="page-turners">
+        <button @click="handlePageTurn('prev')">prev page</button>
+        <button @click="handlePageTurn('next')">next page</button>
+    </div>
     <section>
         <div id="book-wrapper" v-for="book in books" :key="book.id">
             <h1 @click="goToBookPage(book.id)">{{ book.title }}</h1>
@@ -48,6 +53,8 @@ const handlePageTurn = (dir: 'next' | 'prev'): void => {
             </div>
         </div>
     </section>
+    <button @click="handlePageTurn('prev')">prev page</button>
+    <button @click="handlePageTurn('next')">next page</button>
 </template>
 
 <style scoped>
@@ -56,7 +63,7 @@ h1 {
     color: #ffffff;
 }
 #book-wrapper {
-    background-color: rgba(83, 91, 242, 0.15);
+    background-color: #213547;
     width: 20vw;
     padding: 2rem;
     margin: 1rem;
@@ -65,5 +72,11 @@ h1 {
 section {
     display: grid;
     grid-template-columns: repeat(3, minmax(200px, 4fr));
+}
+
+.page-turners {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
 }
 </style>
