@@ -30,7 +30,7 @@ const getReadUrl = (book: BookMetadata): string => {
 }
 
 const getDownloadUrl = (book: BookMetadata, eBookType: string): string => {
-    return book && book.formats && book.formats[eBookType] ? book.formats['text/html'] : ''
+    return book && book.formats && book.formats[eBookType] ? book.formats[eBookType] : ''
 }
 </script>
 
@@ -50,9 +50,12 @@ const getDownloadUrl = (book: BookMetadata, eBookType: string): string => {
             </div>
             <div id="btn-wrapper">
                 <a :href="getReadUrl(book)"><button>Read Book</button></a>
-                <a v-for="type in eBookType" :href="getDownloadUrl(book, type)"
-                    ><button>Download: {{ type }}</button></a
-                >
+                <div v-for="type in eBookType">
+                    <a :href="getDownloadUrl(book, type)"
+                        ><button>Download: {{ type }}</button></a
+                    >
+                    <h2>{{ getDownloadUrl(book, type) }}</h2>
+                </div>
             </div>
         </div>
     </div>
