@@ -6,13 +6,12 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const books = ref<BookMetadata[]>([])
 const page = ref<number>(1)
-
 const searchUrl = ref<string>('https://gutendex.com/books/?page=1')
 
-watch(page, () => {
+watch(page, async () => {
     searchUrl.value = `https://gutendex.com/books/?page=${page.value}`
     books.value = []
-    fetchData()
+    await fetchData()
 })
 
 const fetchData = async () => {
@@ -25,8 +24,8 @@ const fetchData = async () => {
     }
 }
 
-onMounted(() => {
-    fetchData()
+onMounted(async () => {
+    await fetchData()
 })
 
 const goToBookPage = (bookId: number) => {
@@ -34,7 +33,7 @@ const goToBookPage = (bookId: number) => {
 }
 
 const getCoverImageUrl = (book: BookMetadata): string => {
-    return book.formats['image/jpeg'] ?? ''
+    return book.formats['image/jpeg'] ?? '../assets/img/book.jpg'
 }
 
 const getFormattedSubjects = (subjects: string[]): string[] => {
@@ -47,6 +46,19 @@ const getFormattedSubjects = (subjects: string[]): string[] => {
 const handlePageTurn = (dir: 'next' | 'prev'): void => {
     dir === 'next' ? page.value++ : page.value <= 1 ? (page.value = 1) : page.value--
     window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const truncateTitle = (title: string, maxLength: number) => {
+    if (title.length > maxLength) {
+        return title.substring(0, maxLength) + '...'
+    } else {
+        return title
+    }
+}
+
+const firstFromArray = (arr: string[]) => {
+    if (arr.length > 5) return arr.slice(0, 5)
+    else return arr
 }
 </script>
 
@@ -65,20 +77,20 @@ const handlePageTurn = (dir: 'next' | 'prev'): void => {
                 @click="goToBookPage(book.id)"
                 class="book-wrapper"
             >
-                <h1>{{ book.title }}</h1>
-                <div v-for="author in book.authors" :key="author.name">
-                    <h3>{{ author.name }}</h3>
+                <h3 class="text">{{ truncateTitle(book.title, 20) }}</h3>
+                <div class="text" v-for="author in book.authors" :key="author.name">
+                    <h5>{{ author.name }}</h5>
                 </div>
-                <img :src="getCoverImageUrl(book)" alt="" />
-                <div style="display: flex; flex-wrap: wrap">
-                    <h5 v-for="subject in getFormattedSubjects(book.subjects)" :key="subject">
+                <img class="img" :src="getCoverImageUrl(book)" alt="" />
+                <div class="text" style="display: flex; flex-wrap: wrap">
+                    <h5 v-for="subject in getFormattedSubjects(firstFromArray(book.subjects))" :key="subject">
                         #<span style="color: #8e92ff">{{ subject }} </span>
                     </h5>
                 </div>
             </div>
-            <div v-else v-for="n in 30" :key="n" class="book-wrapper" style="height: 30vw; background-color: #1a1a1a">
+            <div v-else v-for="n in 30" :key="n" class="book-wrapper" style="height: 30vw">
                 <h2>Loading...</h2>
-                <img id="load-book" src="../assets/img/book.jpg" alt="" />
+                <img class="img" id="load-book" src="../assets/img/book.jpg" alt="" />
             </div>
         </section>
         <div class="page-turners">
@@ -91,10 +103,11 @@ const handlePageTurn = (dir: 'next' | 'prev'): void => {
 
 <style scoped>
 img {
-    z-index: 1;
-    width: 20vw;
-    height: 30vw;
     object-fit: cover;
+    z-index: 1;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
     position: absolute;
     border-radius: 4px;
     transition: 0.4s;
@@ -102,9 +115,10 @@ img {
 }
 
 .book-wrapper {
+    background-color: transparent;
     position: relative;
-    width: 20vw;
-    height: 30vw;
+    width: 15vw;
+    height: 60vh;
     padding: 2rem;
     margin: 1rem;
     cursor: pointer;
@@ -122,7 +136,9 @@ img:hover {
     opacity: 0.3;
     box-shadow: 0 0 10px rgb(255, 255, 255);
 }
-
+.book-wrapper:hover {
+    opacity: 1;
+}
 h1 {
     font-size: 24px;
     color: #ffffff;
@@ -130,7 +146,7 @@ h1 {
 
 section {
     display: grid;
-    grid-template-columns: repeat(3, minmax(200px, 4fr));
+    grid-template-columns: repeat(4, minmax(200px, 4fr));
 }
 
 .page-turners {
@@ -143,6 +159,9 @@ section {
 }
 
 #load-book {
+    width: 100%;
+    height: auto;
+    background-color: transparent;
     opacity: 0.1;
 }
 </style>

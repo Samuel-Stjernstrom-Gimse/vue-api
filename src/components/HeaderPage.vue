@@ -6,11 +6,11 @@ const router = useRouter()
 
 <template>
     <div id="header">
-        <h1 style="cursor: pointer" @click="router.push(`/book`)">Gutenberg Library</h1>
+        <h1 style="cursor: pointer" @click="router.push(`/book`)">Gutenberg</h1>
         <div id="">
             <input />
         </div>
-        <button>Submit</button>
+        <button>Search</button>
     </div>
 </template>
 
@@ -26,21 +26,6 @@ const router = useRouter()
     width: 100vw;
     height: 10vh;
     background-color: #535bf2;
-}
-
-#input {
-    height: 2rem;
-}
-
-#suggestions {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    position: absolute;
-    width: 100%;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    z-index: 1;
 }
 
 #suggestions li {
